@@ -36,7 +36,7 @@ class BasicScraper:
         pass
 
     """Stub for get_topics_handler. Must be implemented by user."""
-    def get_topics_handler(self):
+    def get_topics(self):
         pass
 
     """Opens provided url and returns soup object for further processing"""
