@@ -39,14 +39,21 @@ class BasicScraper:
     def get_topics(self):
         pass
 
-    """Opens provided url and returns soup object for further processing"""
+    """Opens provided url and returns soup object for further processing.
+    Note: method changes soup context."""
     def open_web(self, url):
-        ref = urllib2.urlopen(url).read()
-        self.soup = BeautifulSoup(ref, "lxml")  # lxml param to suppress interpreter warnings
+        try:
+            ref = urllib2.urlopen(url).read()
+            self.soup = BeautifulSoup(ref, "lxml")  # lxml param to suppress interpreter warnings
+        except urllib2.URLError:
+            "Problem with connection to address : {0}".format(url)
+            raise
 
     """Returns list of main forum topic links"""
     def get_forum_links(self):
-        threads = self.get_topics()
+        threads = []
+        if self.soup:
+            threads = self.get_topics()
         return threads
 
     """Extracts and returns content of posts for each of thread provided as input param"""
