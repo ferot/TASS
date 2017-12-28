@@ -1,6 +1,9 @@
+import os
 import random
 import time
 from urllib2 import URLError
+
+import sys
 
 from WebScraper.basic_scraper import BasicScraper
 
@@ -51,15 +54,27 @@ class MyScraper(BasicScraper):
         content = []
         print "in extract_content"
         for thread in threads:
+            thread_nr = 0
             post_nr = 0
             page_nr = 1
 
             self.open_web(thread)
             print "attempt to open website : {0}".format(thread)
 
+            thread_nr += 1
             # iterate over pages(if not single) and extract content.
             proceed = True
             while proceed:
+                # WARNING this size is not truly content size it may be considered as SIZE OF REFERENCES to content
+                # so threshold value is chosen arbitrarily ('real' content reffered - may be even much bigger!)
+                if sys.getsizeof(content) > 1000:
+                    print "sizeof content so far : {0} bytes. \n Chunking content...".format(str(sys.getsizeof(content)))
+
+                    self.status_dict["thread_nr"] = thread_nr
+                    self.status_dict["post_nr"] = post_nr
+
+                    self._chunk_file(content, self._generate_chunk_name())
+                    content = []
 
                 for post in self.soup.find_all('div', {'class': 'content'}):
                     post_nr += 1
@@ -84,3 +99,21 @@ class MyScraper(BasicScraper):
             # last page of topic or single page of threads(no 'next' button)
             proceed = False
         return proceed
+
+    @staticmethod
+    def _chunk_file(item_list, chunk_name):
+        directory = "./chunks/"
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+        file = open(directory + chunk_name, 'w')
+        for item in item_list:
+            print >> file, item
+
+    def _generate_chunk_name(self):
+        iteration = self.status_dict["iteration"]
+        thr_nr = self.status_dict["thread_nr"]
+        post_nr = self.status_dict["post_nr"]
+
+        name = "ch_i_" + str(iteration) + "_t_" + str(thr_nr) + "_p" + str(post_nr)
+        return name

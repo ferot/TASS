@@ -17,6 +17,7 @@ class BasicScraper:
     def __init__(self, url, process_topics_handler=None, get_topics_handler=None):
         self.base_url = url
         self.soup = None
+        self.status_dict = dict()
 
         if process_topics_handler is not None:
             self.process_topics = process_topics_handler
@@ -61,8 +62,9 @@ class BasicScraper:
         print "Number of topics to process : " + str(len(topics))
         iter = 0
         for topic in topics:
-            iter+=1
+            iter += 1
             print "iteration nr : " + str(iter)
+            self.status_dict["iteration"] = iter
             # for each forum-topic we have new soup context
             self.open_web(topic)
             if self.process_topics is not None:
