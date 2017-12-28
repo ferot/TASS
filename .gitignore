@@ -103,3 +103,7 @@ ENV/
 #Pycharm build files
 .idea
 *.pyc
+
+#output files
+ch_*
+chunks
