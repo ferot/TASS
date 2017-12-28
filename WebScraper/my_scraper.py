@@ -36,6 +36,7 @@ class MyScraper(BasicScraper):
                 retry_count -= 1
         return posts
 
+    """Getting main topics as reference point to further processing"""
     def get_topics(self):
         return self._build_link_list('forumtitle')
 
@@ -91,7 +92,8 @@ class MyScraper(BasicScraper):
 
         return content
 
-    def go_next_page(self):
+    """Method responsible for moving into next page of current soup context. Note - modifies it !"""
+    def _go_next_page(self):
         # get link to next page
         form = self._build_link_list('right-box right')
         if len(form):
@@ -104,6 +106,7 @@ class MyScraper(BasicScraper):
             proceed = False
         return proceed
 
+    """Dumps sent as argument list into file with provided name."""
     @staticmethod
     def _chunk_file(item_list, chunk_name):
         directory = "./chunks/"
@@ -114,6 +117,7 @@ class MyScraper(BasicScraper):
         for item in item_list:
             print >> file, item.encode('utf-8')
 
+    """Generates name for chunk of content"""
     def _generate_chunk_name(self):
         iteration = self.status_dict["iteration"]
         thr_nr = self.status_dict["thread_nr"]
@@ -122,7 +126,9 @@ class MyScraper(BasicScraper):
         name = "ch_i_" + str(iteration) + "_t_" + str(thr_nr) + "_p" + str(post_nr)
         return name
 
-    def clean_html(self, raw_html):
+    """Cleans sent raw HTML file from tags"""
+    @staticmethod
+    def clean_html(raw_html):
         cleanr = re.compile('<.*?>')
         cleantext = re.sub(cleanr, '', raw_html)
         return cleantext
