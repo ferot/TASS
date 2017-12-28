@@ -7,7 +7,7 @@ def main():
 
     ms = MyScraper(base_url)
     threads = ms.get_forum_links()
-    ms.get_posts_content(threads)
+    post_list = ms.get_posts_content(threads)
 
 if __name__ == "__main__":
     main()

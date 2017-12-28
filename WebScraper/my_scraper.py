@@ -21,16 +21,19 @@ class MyScraper(BasicScraper):
 
         # max number of failures
         retry_count = 10
-
+        posts = []
         while proceed and retry_count:
             try:
-                # do processing of topic's page
-                posts = self._build_link_list('topictitle')
-                print self.get_post_content(posts)
+                # do processing of topic's threads
+                threads = self._build_link_list('topictitle')
+                print "pages : {0}".format(str(len(threads)))
+                posts.append(self.extract_content(threads))
+
                 proceed = self.go_next_page()
             except URLError:
                 print "Problem with connection"
                 retry_count -= 1
+        return posts
 
     def get_topics(self):
         return self._build_link_list('forumtitle')
@@ -43,13 +46,30 @@ class MyScraper(BasicScraper):
             link_list.append(self.base_url + thread)
         return link_list
 
-    """Obtains post from current page"""
-    def get_post_content(self, threads):
+    """Obtains post content from current page"""
+    def extract_content(self, threads):
         content = []
+        print "in extract_content"
         for thread in threads:
+            post_nr = 0
+            page_nr = 1
+
             self.open_web(thread)
-            for post in self.soup.find_all('div', {'class': 'content'}):
-                content.append(post)
+            print "attempt to open website : {0}".format(thread)
+
+            # iterate over pages(if not single) and extract content.
+            proceed = True
+            while proceed:
+
+                for post in self.soup.find_all('div', {'class': 'content'}):
+                    post_nr += 1
+                    print "post  nr : {0}".format(post_nr)
+                    content.append(post)
+                proceed = self.go_next_page()
+                if proceed:
+                    page_nr += 1
+                    print "proceeding page_nr : {0} of thread...".format(page_nr)
+
         return content
 
     def go_next_page(self):
