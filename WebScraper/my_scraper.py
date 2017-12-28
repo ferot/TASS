@@ -1,9 +1,7 @@
 import os
-import random
-import time
 from urllib2 import URLError
-
 import sys
+import re
 
 from WebScraper.basic_scraper import BasicScraper
 
@@ -68,6 +66,7 @@ class MyScraper(BasicScraper):
                 # WARNING this size is not truly content size it may be considered as SIZE OF REFERENCES to content
                 # so threshold value is chosen arbitrarily ('real' content reffered - may be even much bigger!)
                 if sys.getsizeof(content) > 1000:
+
                     print "sizeof content so far : {0} bytes. \n Chunking content...".format(str(sys.getsizeof(content)))
 
                     self.status_dict["thread_nr"] = thread_nr
@@ -79,7 +78,12 @@ class MyScraper(BasicScraper):
                 for post in self.soup.find_all('div', {'class': 'content'}):
                     post_nr += 1
                     print "post  nr : {0}".format(post_nr)
-                    content.append(post)
+
+                    post_content = self.clean_html(post.text)
+                    content.append(post_content)
+                    # newline for posts separation
+                    content.append("\n")
+
                 proceed = self.go_next_page()
                 if proceed:
                     page_nr += 1
@@ -108,7 +112,7 @@ class MyScraper(BasicScraper):
 
         file = open(directory + chunk_name, 'w')
         for item in item_list:
-            print >> file, item
+            print >> file, item.encode('utf-8')
 
     def _generate_chunk_name(self):
         iteration = self.status_dict["iteration"]
@@ -117,3 +121,8 @@ class MyScraper(BasicScraper):
 
         name = "ch_i_" + str(iteration) + "_t_" + str(thr_nr) + "_p" + str(post_nr)
         return name
+
+    def clean_html(self, raw_html):
+        cleanr = re.compile('<.*?>')
+        cleantext = re.sub(cleanr, '', raw_html)
+        return cleantext
