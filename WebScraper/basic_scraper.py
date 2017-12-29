@@ -87,7 +87,10 @@ class BasicScraper:
 
     """Dumps sent as argument list into file with provided name."""
     def _chunk_file(self, item_list, chunk_name):
-        directory = "./chunks/" + self.chunk_sub_dir
+        # get forum name from url of scraped forum
+        extracted_subdirname = self.base_url.split(".")[0].split('//')[1]
+
+        directory = "./chunks/{0}/".format(extracted_subdirname)
         if not os.path.exists(directory):
             os.makedirs(directory)
 
