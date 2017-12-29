@@ -5,10 +5,10 @@ from WebScraper.basic_scraper import BasicScraper
 
 
 """Wrapper for BasicScraper class.
-Implements functionality with specifics of site e-gory"""
+Implements functionality with specifics of site e-gory.pl"""
 
 
-class MyScraper(BasicScraper):
+class EgoryScraper(BasicScraper):
     def __init__(self, url):
         BasicScraper.__init__(self, url)
 
