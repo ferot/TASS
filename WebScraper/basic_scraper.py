@@ -82,7 +82,7 @@ class BasicScraper:
         thr_nr = self.status_dict["thread_nr"]
         post_nr = self.status_dict["post_nr"]
 
-        name = "ch_i_" + str(iteration) + "_t_" + str(thr_nr) + "_p" + str(post_nr)
+        name = "ch_i_{0}_t_{1}_p_{2}".format(str(iteration), str(thr_nr), str(post_nr))
         return name
 
     """Dumps sent as argument list into file with provided name."""
