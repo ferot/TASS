@@ -79,8 +79,8 @@ class EgoryScraper(BasicScraper):
 
                     post_content = self.clean_html(post.text)
                     content.append(post_content)
-                    # newline for posts separation
-                    content.append("\n")
+                    # special char for posts separation and easier parsing
+                    content.append("---------------------------------------------------")
 
                 proceed = self._go_next_page()
                 if proceed:
