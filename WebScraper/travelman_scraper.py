@@ -45,6 +45,15 @@ class TravelManScraper(BasicScraper):
             thread = link.get('href')
             # 'pid' links refer to 'recently added post. ommit them
             if param in thread and not 'pid' in thread:
+                # This check refers to situation when that links :viewtopic.php?id=3241 viewtopic.php?id=3241&p=1
+                # point to the same thread. To avoid double adding same link, below filtering is made
+                if len(link_list):
+                    prev_id, prev_page = self.get_link_page_attrs(link_list[-1])
+                    cur_id, cur_page = self.get_link_page_attrs(thread)
+
+                    if cur_id == prev_id and prev_page is None and cur_id is not None:
+                        link_list = link_list[:-1]
+
                 link_list.append(self.base_url + '/' + thread)
         return link_list
 
@@ -108,3 +117,16 @@ class TravelManScraper(BasicScraper):
                 # last page of topic or single page of threads(no 'next' button)
                 proceed = False
         return proceed
+
+    def get_link_page_attrs(self, link):
+        ID = None
+        page = None
+        full_id = link.split("id=")[1]
+        if full_id is not None:
+            if '&p=' in full_id:
+                split_list = full_id.split('&p=')
+                ID = split_list[0]
+                page = split_list[1]
+            else:
+                ID = full_id
+        return ID, page
