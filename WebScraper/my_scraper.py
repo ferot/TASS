@@ -1,7 +1,5 @@
-import os
 from urllib2 import URLError
 import sys
-import re
 
 from WebScraper.basic_scraper import BasicScraper
 
@@ -28,13 +26,12 @@ class MyScraper(BasicScraper):
                 # do processing of topic's threads
                 threads = self._build_link_list('topictitle')
                 print "pages : {0}".format(str(len(threads)))
-                posts.append(self.extract_content(threads))
+                self.extract_content(threads)
 
-                proceed = self.go_next_page()
+                proceed = self._go_next_page()
             except URLError:
                 print "Problem with connection"
                 retry_count -= 1
-        return posts
 
     """Getting main topics as reference point to further processing"""
     def get_topics(self):
@@ -48,7 +45,7 @@ class MyScraper(BasicScraper):
             link_list.append(self.base_url + thread)
         return link_list
 
-    """Obtains post content from current page"""
+    """Obtains post content from current page. Iterates recursively over forum (sub-)threads"""
     def extract_content(self, threads):
         content = []
         print "in extract_content"
@@ -85,14 +82,13 @@ class MyScraper(BasicScraper):
                     # newline for posts separation
                     content.append("\n")
 
-                proceed = self.go_next_page()
+                proceed = self._go_next_page()
                 if proceed:
                     page_nr += 1
                     print "proceeding page_nr : {0} of thread...".format(page_nr)
 
-        return content
-
-    """Method responsible for moving into next page of current soup context. Note - modifies it !"""
+    """Method responsible for possibly moving into next page of current soup context.
+    Note - modifies that context !"""
     def _go_next_page(self):
         # get link to next page
         form = self._build_link_list('right-box right')
@@ -105,30 +101,3 @@ class MyScraper(BasicScraper):
             # last page of topic or single page of threads(no 'next' button)
             proceed = False
         return proceed
-
-    """Dumps sent as argument list into file with provided name."""
-    @staticmethod
-    def _chunk_file(item_list, chunk_name):
-        directory = "./chunks/"
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-
-        file = open(directory + chunk_name, 'w')
-        for item in item_list:
-            print >> file, item.encode('utf-8')
-
-    """Generates name for chunk of content"""
-    def _generate_chunk_name(self):
-        iteration = self.status_dict["iteration"]
-        thr_nr = self.status_dict["thread_nr"]
-        post_nr = self.status_dict["post_nr"]
-
-        name = "ch_i_" + str(iteration) + "_t_" + str(thr_nr) + "_p" + str(post_nr)
-        return name
-
-    """Cleans sent raw HTML file from tags"""
-    @staticmethod
-    def clean_html(raw_html):
-        cleanr = re.compile('<.*?>')
-        cleantext = re.sub(cleanr, '', raw_html)
-        return cleantext

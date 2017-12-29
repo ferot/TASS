@@ -1,7 +1,10 @@
+import os
 from bs4 import BeautifulSoup
 import urllib2
 import time
 import random
+
+import re
 
 """Class responsible for basic scrap operations.
 As interface class it implements all behaviours essential for web scraping such as:
@@ -72,3 +75,29 @@ class BasicScraper:
 
             # sleep to avoid server overloading
             time.sleep(random.uniform(0, 2))
+
+    """Generates name for chunk of content"""
+    def _generate_chunk_name(self):
+        iteration = self.status_dict["iteration"]
+        thr_nr = self.status_dict["thread_nr"]
+        post_nr = self.status_dict["post_nr"]
+
+        name = "ch_i_" + str(iteration) + "_t_" + str(thr_nr) + "_p" + str(post_nr)
+        return name
+
+    """Dumps sent as argument list into file with provided name."""
+    def _chunk_file(self, item_list, chunk_name):
+        directory = "./chunks/" + self.chunk_sub_dir
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+        file = open(directory + chunk_name, 'w')
+        for item in item_list:
+            print >> file, item.encode('utf-8')
+
+    """Cleans sent raw HTML file from tags"""
+    @staticmethod
+    def clean_html(raw_html):
+        cleanr = re.compile('<.*?>')
+        cleantext = re.sub(cleanr, '', raw_html)
+        return cleantext
