@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Najpolularniejsze trasy turystyczne </title>
+	<meta charset="utf-8">
+
+
+	<style>
+	html, body, #map{
+		height: 100%;
+		margin: 0px;
+		padding: 0px;
+	}
+
+	#canvas-panel {	
+        background-color: #fff;
+        border: 1px solid #999;
+        left: 0%;
+        padding: 5px;
+        position: absolute;
+        bottom: 40px;
+        z-index: 5;
+ 	}	
+	</style>
+	
+
+</head>
+
+<body onload="initialize()">
+
+	<button onclick="initialize()">rysuj</button>
+	<div id="canvas-panel">
+		<canvas id="myCanvas" width="320" height="20" style="border:1px solid #d3d3d3;"></canvas>
+	</div>	
+
+
+	<div id="map"></div>
+
+	<script src="http://localhost:8000/jquery-1.11.2.min.js"></script>
+	<script>
+		// mapa kolorów (copy-paste z Matlaba)
+          var jet=[
+		[         0 ,        0 ,   0.5625],
+		[         0 ,        0 ,   0.6250],
+		[         0 ,        0 ,   0.6875],
+		[         0 ,        0 ,   0.7500],
+		[         0 ,        0 ,   0.8125],
+		[         0 ,        0 ,   0.8750],
+		[         0 ,        0 ,   0.9375],
+		[         0 ,        0 ,   1.0000],
+		[         0 ,   0.0625 ,   1.0000],
+		[         0 ,   0.1250 ,   1.0000],
+		[         0 ,   0.1875 ,   1.0000],
+		[         0 ,   0.2500 ,   1.0000],
+		[         0 ,   0.3125 ,   1.0000],
+		[         0 ,   0.3750 ,   1.0000],
+		[         0 ,   0.4375 ,   1.0000],
+		[         0 ,   0.5000 ,   1.0000],
+		[         0 ,   0.5625 ,   1.0000],
+		[         0 ,   0.6250 ,   1.0000],
+		[         0 ,   0.6875 ,   1.0000],
+		[         0 ,   0.7500 ,   1.0000],
+		[         0 ,   0.8125 ,   1.0000],
+		[         0 ,   0.8750 ,   1.0000],
+		[         0 ,   0.9375 ,   1.0000],
+		[         0 ,   1.0000 ,   1.0000],
+		[    0.0625 ,   1.0000 ,   0.9375],
+		[    0.1250 ,   1.0000 ,   0.8750],
+		[    0.1875 ,   1.0000 ,   0.8125],
+		[    0.2500 ,   1.0000 ,   0.7500],
+		[    0.3125 ,   1.0000 ,   0.6875],
+		[    0.3750 ,   1.0000 ,   0.6250],
+		[    0.4375 ,   1.0000 ,   0.5625],
+		[    0.5000 ,   1.0000 ,   0.5000],
+		[    0.5625 ,   1.0000 ,   0.4375],
+		[    0.6250 ,   1.0000 ,   0.3750],
+		[    0.6875 ,   1.0000 ,   0.3125],
+		[    0.7500 ,   1.0000 ,   0.2500],
+		[    0.8125 ,   1.0000 ,   0.1875],
+		[    0.8750 ,   1.0000 ,   0.1250],
+		[    0.9375 ,   1.0000 ,   0.0625],
+		[    1.0000 ,   1.0000 ,        0],
+		[    1.0000 ,   0.9375 ,        0],
+		[    1.0000 ,   0.8750 ,        0],
+		[    1.0000 ,   0.8125 ,        0],
+		[    1.0000 ,   0.7500 ,        0],
+		[    1.0000 ,   0.6875 ,        0],
+		[    1.0000 ,   0.6250 ,        0],
+		[    1.0000 ,   0.5625 ,        0],
+		[    1.0000 ,   0.5000 ,        0],
+		[    1.0000 ,   0.4375 ,        0],
+		[    1.0000 ,   0.3750 ,        0],
+		[    1.0000 ,   0.3125 ,        0],
+		[    1.0000 ,   0.2500 ,        0],
+		[    1.0000 ,   0.1875 ,        0],
+		[    1.0000 ,   0.1250 ,        0],
+		[    1.0000 ,   0.0625 ,        0],
+		[    1.0000 ,        0 ,        0],
+		[    0.9375 ,        0 ,        0],
+		[    0.8750 ,        0 ,        0],
+		[    0.8125 ,        0 ,        0],
+		[    0.7500 ,        0 ,        0],
+		[    0.6875 ,        0 ,        0],
+		[    0.6250 ,        0 ,        0],
+		[    0.5625 ,        0 ,        0],
+		[    0.5000 ,        0 ,        0]]
+
+
+		var c = document.getElementById("myCanvas");
+		var ctx = c.getContext("2d");
+		for(var i=0;i<jet.length;i++) {         // wykreślenie skali kolorów
+        		var color = '#';
+        		for(var j=0;j<3;j++){
+                		var c=Math.round(jet[i][j]*255);
+                		color+=("0"+c.toString(16)).substr(-2); // to hex with zero padding
+        		}
+        		ctx.fillStyle=color
+        		ctx.fillRect(0+5*i, 0, 5, 20);
+		}	
+
+
+	
+		var map;
+
+		function initialize() {
+			map = new google.maps.Map(
+				document.getElementById('map'), 
+				{
+					zoom: 8,
+					center: {lat: 50, lng: 20},
+					styles: [
+					{"featureType":"landscape","stylers":[{"saturation":-100},{"lightness":65},
+					{"visibility":"on"}]},{"featureType":"poi","stylers":[{"saturation":-100},{"lightness":51},
+					{"visibility":"simplified"}]},{"featureType":"road.highway","stylers":[{"saturation":-100},
+					{"visibility":"simplified"}]},{"featureType":"road.arterial","stylers":[{"saturation":-100},
+					{"lightness":30},{"visibility":"on"}]},{"featureType":"road.local","stylers":[{"saturation":-100},
+					{"lightness":40},{"visibility":"on"}]},{"featureType":"transit","stylers":[{"saturation":-100},
+					{"visibility":"simplified"}]},
+					{"featureType":"administrative.province","stylers":[{"visibility":"off"}]},
+					{"featureType":"water","elementType":"labels","stylers":[{"visibility":"on"},
+					{"lightness":-25},{"saturation":-100}]},
+					{"featureType":"water","elementType":"geometry","stylers":[{"hue":"#ffff00"},
+					{"lightness":-25},{"saturation":-97}]},
+					{"featureType":"road","elementType":"labels","stylers":[{"visibility":"off"}]}
+					]
+				}
+
+			);
+
+			map.data.loadGeoJson('http://localhost:8000/lines.json');
+			
+			map.data.setStyle(function(feature) {
+						var weight = parseInt(feature.getProperty('weight'));
+						
+						if (weight==null)
+							color="white";						
+						else
+							color = getLineColor(weight, jet);	
+
+						return{
+						fillColor: "white", 
+						strokeWeight: 0.5 + (Math.log10(weight + 1)),
+						strokeColor: color
+						};
+					});
+
+		}
+
+		function getLineColor(value, colormap) {
+			var colorIdx = Math.round(colormap.length * Math.log10(value+1)/3.5);
+			
+			if (colorIdx<0)
+				colorIdx=0;
+
+			if (colorIdx>=jet.length)
+				colorIdx=jet.length-1;
+
+			var color = '#';
+			for (var i=0; i<3; i++){
+				var c=Math.round(colormap[colorIdx][i]*255);
+				color+=("0"+c.toString(16)).substr(-2); //to hex ith zero padding
+			}
+			return color;
+		}
+		
+	</script>	
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAkK7JpbC_soe0A4kAw-n7iERjPxIgrQCM&callback=initialize"></script>
+
+</body>
+</html>
