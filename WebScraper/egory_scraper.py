@@ -1,3 +1,4 @@
+import logging
 from urllib2 import URLError
 import sys
 
@@ -25,12 +26,13 @@ class EgoryScraper(BasicScraper):
             try:
                 # do processing of topic's threads
                 threads = self._build_link_list('topictitle')
-                print "pages : {0}".format(str(len(threads)))
+                self.logger.debug (str(threads))
+                self.logger.debug("pages : {0}".format(str(len(threads))))
                 self.extract_content(threads)
 
                 proceed = self._go_next_page()
             except URLError:
-                print "Problem with connection"
+                self.logger.error("Problem with connection")
                 retry_count -= 1
 
     """Getting main topics as reference point to further processing"""
@@ -48,14 +50,14 @@ class EgoryScraper(BasicScraper):
     """Obtains post content from current page. Iterates recursively over forum (sub-)threads"""
     def extract_content(self, threads):
         content = []
-        print "in extract_content"
+        self.logger.debug("in extract_content")
         for thread in threads:
             thread_nr = 0
             post_nr = 0
             page_nr = 1
 
             self.open_web(thread)
-            print "attempt to open website : {0}".format(thread)
+            self.logger.debug("attempt to open website : {0}".format(thread))
 
             thread_nr += 1
             # iterate over pages(if not single) and extract content.
@@ -64,8 +66,7 @@ class EgoryScraper(BasicScraper):
                 # WARNING this size is not truly content size it may be considered as SIZE OF REFERENCES to content
                 # so threshold value is chosen arbitrarily ('real' content reffered - may be even much bigger!)
                 if sys.getsizeof(content) > 1000:
-
-                    print "sizeof content so far : {0} bytes. \n Chunking content...".format(str(sys.getsizeof(content)))
+                    self.logger.critical("sizeof content so far : {0} bytes. \n Chunking content...".format(str(sys.getsizeof(content))))
 
                     self.status_dict["thread_nr"] = thread_nr
                     self.status_dict["post_nr"] = post_nr
@@ -75,7 +76,7 @@ class EgoryScraper(BasicScraper):
 
                 for post in self.soup.find_all('div', {'class': 'content'}):
                     post_nr += 1
-                    print "post  nr : {0}".format(post_nr)
+                    self.logger.critical("post  nr : {0}".format(post_nr))
 
                     post_content = self.clean_html(post.text)
                     content.append(post_content)
@@ -85,7 +86,7 @@ class EgoryScraper(BasicScraper):
                 proceed = self._go_next_page()
                 if proceed:
                     page_nr += 1
-                    print "proceeding page_nr : {0} of thread...".format(page_nr)
+                    self.logger.debug ("proceeding page_nr : {0} of thread...".format(page_nr))
 
     """Method responsible for possibly moving into next page of current soup context.
     Note - modifies that context !"""

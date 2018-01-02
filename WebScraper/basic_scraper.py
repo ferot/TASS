@@ -5,6 +5,7 @@ import time
 import random
 
 import re
+import logging
 
 """Class responsible for basic scrap operations.
 As interface class it implements all behaviours essential for web scraping such as:
@@ -22,6 +23,8 @@ class BasicScraper:
         self.soup = None
         self.status_dict = dict()
 
+        self.setup_logger()
+
         if process_topics_handler is not None:
             self.process_topics = process_topics_handler
         if get_topics_handler is not None:
@@ -29,7 +32,7 @@ class BasicScraper:
 
         self.open_web(self.base_url)
         if self.soup is None:
-            print "Couldn't init scraper!"
+            self.logger.error("Couldn't init scraper!")
 
     """Stub for dump_tracks_to_file. Must be implemented by user."""
     def dump_tracks_to_file(self):
@@ -62,11 +65,13 @@ class BasicScraper:
 
     """Extracts and returns content of posts for each of thread provided as input param"""
     def get_posts_content(self, topics):
-        print "Number of topics to process : " + str(len(topics))
+        self.logger.info("Starting scraping : " + self.base_url)
+
+        self.logger.info("Number of topics to process : " + str(len(topics)))
         iter = 0
         for topic in topics:
             iter += 1
-            print "iteration nr : " + str(iter)
+            self.logger.debug("iteration nr : " + str(iter))
             self.status_dict["iteration"] = iter
             # for each forum-topic we have new soup context
             self.open_web(topic)
@@ -88,7 +93,7 @@ class BasicScraper:
     """Dumps sent as argument list into file with provided name."""
     def _chunk_file(self, item_list, chunk_name):
         # get forum name from url of scraped forum
-        extracted_subdirname = self.base_url.split(".")[0].split('//')[1]
+        extracted_subdirname = self._get_subdir_name()
 
         directory = "./chunks/{0}/".format(extracted_subdirname)
         if not os.path.exists(directory):
@@ -104,3 +109,16 @@ class BasicScraper:
         cleanr = re.compile('<.*?>')
         cleantext = re.sub(cleanr, '', raw_html)
         return cleantext
+
+    def _get_subdir_name(self):
+        return self.base_url.split (".")[0].split ('//')[1]
+
+    def setup_logger(self):
+        logfile_name = self._get_subdir_name() + '.log'
+        file_handler = logging.FileHandler(logfile_name, 'w')
+
+        # main logger instance creation
+        self.logger = logging.getLogger(logfile_name)
+
+        self.logger.addHandler(file_handler)
+        self.logger.setLevel(logging.DEBUG)
