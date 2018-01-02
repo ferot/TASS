@@ -86,13 +86,14 @@ class TravelManScraper(BasicScraper):
                     content = []
 
                 for post in self.soup.find_all('div', {'class': 'postmsg'}):
-                    post_nr += 1
-                    print "post  nr : {0}".format(post_nr)
+                    if "google_ad" not in post.text:
+                        post_nr += 1
+                        print "post  nr : {0}".format(post_nr)
 
-                    post_content = self.clean_html(post.text)
-                    content.append(post_content)
-                    # special char for posts separation and easier parsing
-                    content.append("---------------------------------------------------")
+                        post_content = self.clean_html(post.text)
+                        content.append(post_content)
+                        # special char for posts separation and easier parsing
+                        content.append("---------------------------------------------------")
 
                 proceed = self._go_next_page()
                 if proceed:
@@ -118,6 +119,7 @@ class TravelManScraper(BasicScraper):
                 proceed = False
         return proceed
 
+    """Obtains from link : thread id and page parameter - essential for validating multi-page threads"""
     def get_link_page_attrs(self, link):
         ID = None
         page = None
