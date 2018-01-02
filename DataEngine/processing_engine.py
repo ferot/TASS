@@ -64,7 +64,8 @@ class ProcessingEngine:
 
         # wait for processing to clean queue
         while not self.item_queue.empty():
-            time.sleep(5)
+            pass
+            #time.sleep(1)
 
         self._clean_up()
 
