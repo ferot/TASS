@@ -1,6 +1,6 @@
 from WebScraper.egory_scraper import EgoryScraper
 from WebScraper.travelman_scraper import TravelManScraper
-
+from DataEngine.processing_engine import ProcessingEngine
 
 def main():
 
@@ -20,6 +20,11 @@ def main():
         threads = ms.get_forum_links()
         # print threads
         ms.get_posts_content(threads)
+
+    pe = ProcessingEngine('chunks/*/ch_*', 4)
+    pe.start_processing()
+
+
 
 if __name__ == "__main__":
     main()
