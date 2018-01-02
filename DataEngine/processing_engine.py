@@ -20,9 +20,9 @@ class WorkerThread (threading.Thread):
         self.worker_callback = callback
 
     def run(self):
-        print "Starting " + self.name
+        print "Starting thread with ID {0}".format(self.threadID)
         self.process_data()
-        print "Exiting " + self.name
+        print "Exiting thread with ID {0}".format(self.threadID)
 
     def process_data(self):
         while not exitFlag:
@@ -30,7 +30,7 @@ class WorkerThread (threading.Thread):
             if not self.work_queue.empty():
                 data = self.work_queue.get()
                 WorkerThread.queueLock.release()
-                print "{0} processing {1}".format(self.threadID, data)
+                print "Thread nr : {0} processing: {1}".format(self.threadID, data)
                 self.worker_callback(data)
             else:
                 # this should be in fact realised with cond. variable.
@@ -78,6 +78,8 @@ class ProcessingEngine:
 
     """Joins worker threads and do other cleaning"""
     def _clean_up(self):
+        global exitFlag
+        exitFlag = 1
         for thread in self.threads:
             thread.join()
         print "Finished cleaning."
