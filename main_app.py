@@ -1,5 +1,6 @@
 import threading
 
+import Common
 from WebScraper.egory_scraper import EgoryScraper
 from WebScraper.travelman_scraper import TravelManScraper
 from DataEngine.processing_engine import ProcessingEngine
@@ -30,7 +31,7 @@ class ScrapeThread (threading.Thread):
 
 
 def main():
-
+    Common.init()
     egory = True
     travelman = True
 

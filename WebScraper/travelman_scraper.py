@@ -93,7 +93,7 @@ class TravelManScraper(BasicScraper):
                         post_content = self.clean_html(post.text)
                         content.append(post_content)
                         # special char for posts separation and easier parsing
-                        content.append("---------------------------------------------------")
+                        content.append(self.post_splitter)
 
                 proceed = self._go_next_page()
                 if proceed:

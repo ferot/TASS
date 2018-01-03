@@ -7,6 +7,9 @@ import random
 import re
 import logging
 
+import Common
+
+
 """Class responsible for basic scrap operations.
 As interface class it implements all behaviours essential for web scraping such as:
 loading page, dumping outputs to file etc.
@@ -24,6 +27,8 @@ class BasicScraper:
         self.status_dict = dict()
 
         self.setup_logger()
+
+        self.post_splitter = Common.post_splitter
 
         if process_topics_handler is not None:
             self.process_topics = process_topics_handler
