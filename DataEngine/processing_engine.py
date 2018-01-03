@@ -17,9 +17,9 @@ Worker picks up data to process it in synchronized manner"""
 class WorkerThread (threading.Thread):
     queueLock = threading.Lock()
 
-    def __init__(self, threadID, queue, callback):
+    def __init__(self, thread_id, queue, callback):
         threading.Thread.__init__(self)
-        self.threadID = threadID
+        self.threadID = thread_id
         self.work_queue = queue
         self.worker_callback = callback
 
@@ -47,12 +47,13 @@ class WorkerThread (threading.Thread):
 
 
 class ProcessingEngine:
+    gml_lock = threading.Lock ()
+
     def __init__(self, pattern, threads_nr):
         self.dir_pattern = pattern
         self.thr_nr = threads_nr
         self.item_queue = Queue.Queue()
         self.threads = []
-        self.queue_lock = threading.Lock()
         self.init_threadID = 0
 
     """ Main processing unit. 
@@ -60,7 +61,13 @@ class ProcessingEngine:
     def worker_callback(self, data):
         de = DataEngine(data)
         content = de.read_content()
-        de.get_upper_case_name(content)
+        name_list = de.get_upper_case_names(content)
+        for name in name_list:
+            ProcessingEngine.gml_lock.acquire()
+            root = de.open_gml("utils/cropp_miejsc.gml")
+            root.find(name)
+            ProcessingEngine.gml_lock.release()
+
 
     """Main processing method"""
     def start_processing(self):

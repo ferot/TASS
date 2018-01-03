@@ -1,4 +1,7 @@
+import codecs
+import re
 import unidecode
+from xml.etree import ElementTree as ET
 import Common
 
 """Parser for posts content. Component responsible for extracting desired elements such as cities,
@@ -20,12 +23,35 @@ class DataEngine:
         return posts_list
 
     """Extracts lists of single words begginning with upper-case"""
-    def get_upper_case_name(self, content):
+    def get_upper_case_names(self, content):
+        word_list = []
         for post in self.split_post(content):
             print "\n"
-            decoded_post =  unidecode.unidecode(post.decode('utf-8'))
-            split_words = decoded_post.split(" ")
+
+            post = self.decode_content(post)
+            filtered_post = self.filter_post(post)
+
+            split_words = filtered_post.split(" ")
             for word in split_words:
                 if len(word) > 1 and word[0].isupper():
-                        print unidecode.unidecode(word)
+                        word_list.append(unidecode.unidecode(word))
+        return word_list
 
+    """Decodes post content into utf-8 standard"""
+    def decode_content(self, content):
+        decoded_post = unidecode.unidecode(content.decode('utf-8'))
+        return decoded_post
+
+    """Filter post from unwanted characters"""
+    def filter_post(self, post):
+        restricted_symbols = '[!@#$.,?()*:;"]'  # special symbols to be omitted
+        post = re.sub (restricted_symbols, '', post)
+
+        return post
+
+    """Extracts root of gml file"""
+    def open_gml(self, filename):
+        with open(filename, 'r') as f:
+            tree = ET.parse(f)
+
+        return tree
