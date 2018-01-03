@@ -35,7 +35,7 @@ class GmlCropper:
 
 
 def main():
-    original_file_path = "utils/miejscowosci.gml"
+    original_file_path = "../utils/miejscowosci.gml"
     output_path = "../utils/cropp_miejsc.gml"
     crop_inst = GmlCropper(original_file_path)
 
