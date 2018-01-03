@@ -4,6 +4,10 @@ import glob
 
 import time
 
+import unidecode as unidecode
+
+from DataEngine.dataengine import DataEngine
+
 exitFlag = 0
 
 """Class wrapping threading library. Extends it with queue-processing scheme.
@@ -54,7 +58,9 @@ class ProcessingEngine:
     """ Main processing unit. 
     Needs to be implemented as specific-use behaviour."""
     def worker_callback(self, data):
-        print data
+        de = DataEngine(data)
+        content = de.read_content()
+        de.get_upper_case_name(content)
 
     """Main processing method"""
     def start_processing(self):
