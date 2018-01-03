@@ -53,7 +53,7 @@ class ProcessingEngine:
         self.item_queue = Queue.Queue()
         self.threads = []
         self.queue_lock = threading.Lock()
-        self.init_threadID = 1
+        self.init_threadID = 0
 
     """ Main processing unit. 
     Needs to be implemented as specific-use behaviour."""
