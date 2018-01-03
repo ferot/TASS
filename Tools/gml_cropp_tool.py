@@ -35,14 +35,14 @@ class GmlCropper:
 
 
 def main():
-    original_file_path = "/home/tf/PycharmProjects/TASS/utils/miejsc/miejscowosci.gml"
+    original_file_path = "utils/miejscowosci.gml"
     output_path = "../utils/cropp_miejsc.gml"
-    crop_inst = GmlCropper(output_path)
+    crop_inst = GmlCropper(original_file_path)
 
     remove_tag_list = ['waznyOd', 'cyklZycia', 'panstwo', 'zrodloInformacji', 'idTERYT', 'statusNazwy', ]
 
     crop_inst.remove_tags(remove_tag_list)
-    crop_inst.save_cropped_gml("cropp_miejsc.gml")
+    crop_inst.save_cropped_gml(output_path)
 
 
 if __name__ == "__main__":
