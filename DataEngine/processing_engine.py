@@ -64,8 +64,7 @@ class ProcessingEngine:
         name_list = de.get_upper_case_names(content)
         for name in name_list:
             ProcessingEngine.gml_lock.acquire()
-            root = de.open_gml("utils/cropp_miejsc.gml")
-            root.find(name)
+            # TODO : implement searching from CSV
             ProcessingEngine.gml_lock.release()
 
 
