@@ -7,8 +7,12 @@ import time
 import unidecode as unidecode
 
 from DataEngine.dataengine import DataEngine
+from RoutesGraph import RoutesGraph
+
 
 exitFlag = 0
+#this graph contain concatenated routes
+graph = RoutesGraph()
 
 """Class wrapping threading library. Extends it with queue-processing scheme.
 Worker picks up data to process it in synchronized manner"""
@@ -42,12 +46,16 @@ class WorkerThread (threading.Thread):
                 WorkerThread.queueLock.release()
                 time.sleep(1)
 
+        #write routes to json file
+        graph.writeToGeojson("lines.json")
+
 
 """Base framework for processing content"""
 
 
 class ProcessingEngine:
     gml_lock = threading.Lock ()
+    add_to_graph_lock = threading.Lock ()
     de = DataEngine()
 
     root = de.open_prng("utils/decoded_miejsc_krainy.xml")
@@ -66,16 +74,27 @@ class ProcessingEngine:
         content = ProcessingEngine.de.read_content(data)
         name_list = ProcessingEngine.de.get_upper_case_names(content)
 
-        for name in name_list:
-            print "current name : " + name
-
+        for names in name_list:
             ProcessingEngine.gml_lock.acquire()
             elements = ProcessingEngine.root.findall("row")
             ProcessingEngine.gml_lock.release()
 
-            coord_list = ProcessingEngine.de.build_track_list(elements, name)
-            
-            #print coord_list
+
+            coord_list = ProcessingEngine.de.build_track_list(elements, names)
+            #print("end of one post" + str(coord_list))
+
+            #do not add to graph simple place or empty list
+            if len(coord_list) < 2:
+                continue
+
+
+            ProcessingEngine.add_to_graph_lock.acquire()
+            #add route to graph
+            for i in range(0, len(coord_list) - 1):
+                graph.addEdge(coord_list[i], coord_list[i + 1])
+
+            ProcessingEngine.add_to_graph_lock.release()
+
 
 
     """Main processing method"""
