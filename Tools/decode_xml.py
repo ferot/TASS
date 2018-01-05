@@ -21,7 +21,7 @@ class XMLDecoder:
 
 def main():
     original_file_path = "../utils/miejscowosci.xml"
-    output_path = "../utils/decoded_miejsc.xml"
+    output_path = "../utils/decoded_miejsc_krainy.xml"
 
     decoder = XMLDecoder(original_file_path)
     decoder.decode()
