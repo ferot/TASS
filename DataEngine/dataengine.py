@@ -9,12 +9,13 @@ name of geographical lands, etc"""
 
 
 class DataEngine:
-    def __init__(self, filename):
-        self.file_handler = open("./" + filename, 'r')
+    def __init__(self):
+        pass
 
-    """Reads file's content and returns it as string (without decoding)"""
-    def read_content(self):
-        content = self.file_handler.read()
+    """Reads file's chunk's content by provided filename and returns it as string (without decoding)."""
+    def read_content(self, filename):
+        file_handler = open("./" + filename, 'r')
+        content = file_handler.read()
         return content
 
     """Splits chunk into posts list"""
@@ -26,7 +27,6 @@ class DataEngine:
     def get_upper_case_names(self, content):
         word_list = []
         for post in self.split_post(content):
-            print "\n"
 
             post = self.decode_content(post)
             filtered_post = self.filter_post(post)
