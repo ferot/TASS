@@ -48,6 +48,9 @@ class WorkerThread (threading.Thread):
 
 class ProcessingEngine:
     gml_lock = threading.Lock ()
+    de = DataEngine()
+
+    root = de.open_prng("utils/decoded_miejsc_krainy.xml")
 
     def __init__(self, pattern, threads_nr):
         self.dir_pattern = pattern
@@ -59,14 +62,20 @@ class ProcessingEngine:
     """ Main processing unit. 
     Needs to be implemented as specific-use behaviour."""
     def worker_callback(self, data):
-        de = DataEngine(data)
-        content = de.read_content()
-        name_list = de.get_upper_case_names(content)
+
+        content = ProcessingEngine.de.read_content(data)
+        name_list = ProcessingEngine.de.get_upper_case_names(content)
+
         for name in name_list:
+            print "current name : " + name
+
             ProcessingEngine.gml_lock.acquire()
-            root = de.open_gml("utils/cropp_miejsc.gml")
-            root.find(name)
+            elements = ProcessingEngine.root.findall("row")
             ProcessingEngine.gml_lock.release()
+
+            coord_list = ProcessingEngine.de.build_track_list(elements, name)
+            
+            #print coord_list
 
 
     """Main processing method"""
