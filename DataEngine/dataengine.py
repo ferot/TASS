@@ -49,8 +49,9 @@ class DataEngine:
 
         return post
 
-    """Extracts root of gml file"""
-    def open_gml(self, filename):
+    """Extracts root of PRNG reference file.
+    By default it expects XML file, but GML are still compatible."""
+    def open_prng(self, filename):
         with open(filename, 'r') as f:
             tree = ET.parse(f)
 
