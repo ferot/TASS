@@ -34,11 +34,19 @@ class DataEngine:
             filtered_post = self.filter_post(post)
 
             split_words = filtered_post.split(" ")
+            aggregated_name = []
             for word in split_words:
                 if len(word) > 1 and word[0].isupper():
-                        words_in_post.append(unidecode.unidecode(word))
+                    aggregated_name.append(word)
+                else:
+                    if aggregated_name:
+                        # merge words into final within space
+                        final_name = ' '.join(aggregated_name)
+                        words_in_post.append(unidecode.unidecode(final_name))
+                        aggregated_name = []
+                        #print final_name
 
-	    post_words_list.append(words_in_post)
+            post_words_list.append(words_in_post)
         return post_words_list
 
     """Decodes post content into utf-8 standard"""
