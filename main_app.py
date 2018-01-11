@@ -1,5 +1,5 @@
 import threading
-
+import sys
 import Common
 from WebScraper.egory_scraper import EgoryScraper
 from WebScraper.travelman_scraper import TravelManScraper
@@ -31,6 +31,11 @@ class ScrapeThread (threading.Thread):
 
 
 def main():
+
+    webscraping_enabled = ""
+    if len(sys.argv) > 1:
+        webscraping_enabled = sys.argv[1]
+
     Common.init()
     egory = True
     travelman = True
@@ -38,25 +43,28 @@ def main():
     egory_url = 'http://e-gory.pl/forum'
     travelman_url = 'http://travelmaniacy.pl/forum'
 
-    # Not synced version
-    if thread_nr > 1:
-        print "Multithreading support enabled..."
+    if "ws" in webscraping_enabled:
+        print "Starting webscraping..."
+        if thread_nr > 1:
+            print "Multithreading support enabled..."
 
-        if egory:
-            eg_thr = ScrapeThread(EgoryScraper, egory_url)
-            eg_thr.start()
-        if travelman:
-            trv_thr = ScrapeThread(TravelManScraper, travelman_url)
-            trv_thr.start()
+            if egory:
+                eg_thr = ScrapeThread(EgoryScraper, egory_url)
+                eg_thr.start()
+            if travelman:
+                trv_thr = ScrapeThread(TravelManScraper, travelman_url)
+                trv_thr.start()
 
-        eg_thr.join()
-        trv_thr.join()
+            eg_thr.join()
+            trv_thr.join()
 
+        else:
+            web_scrape(EgoryScraper, egory_url)
+            web_scrape(TravelManScraper, travelman_url)
+
+        print "Finished scraping..."
     else:
-        web_scrape(EgoryScraper, egory_url)
-        web_scrape(TravelManScraper, travelman_url)
-
-    print "Finished scraping..."
+        print "Skipping webscraping..."
 
     pe = ProcessingEngine('chunks/*/ch_*', thread_nr)
     pe.start_processing()
