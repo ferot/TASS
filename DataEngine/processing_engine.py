@@ -46,8 +46,6 @@ class WorkerThread (threading.Thread):
                 WorkerThread.queueLock.release()
                 time.sleep(1)
 
-        #write routes to json file
-        graph.writeToGeojson("lines.json")
 
 
 """Base framework for processing content"""
@@ -109,6 +107,8 @@ class ProcessingEngine:
             #time.sleep(1)
 
         self._clean_up()
+        #write routes to json file
+        graph.writeToGeojson("lines.json")
 
 
     """Spawns thread workers"""
