@@ -1,5 +1,5 @@
 #!/bin/sh
-
+sudo apt install python-pip
 ###Script responsible for preparing environment to run app"
 sudo pip install --upgrade pip
 
