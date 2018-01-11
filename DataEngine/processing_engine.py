@@ -77,8 +77,9 @@ class ProcessingEngine:
             elements = ProcessingEngine.root.findall("row")
             ProcessingEngine.gml_lock.release()
 
-
-            coord_list = ProcessingEngine.de.build_track_list(elements, names)
+            coords_and_names = ProcessingEngine.de.build_track_list(elements, names)
+            coord_list = coords_and_names['cords']
+            names_list = coords_and_names['names']
             #print("end of one post" + str(coord_list))
 
             #do not add to graph simple place or empty list
@@ -89,7 +90,8 @@ class ProcessingEngine:
             ProcessingEngine.add_to_graph_lock.acquire()
             #add route to graph
             for i in range(0, len(coord_list) - 1):
-                graph.addEdge(coord_list[i], coord_list[i + 1])
+                graph.addEdge(coord_list[i], coord_list[i + 1], names_list[i], 
+                                                            names_list[i + 1])
 
             ProcessingEngine.add_to_graph_lock.release()
 

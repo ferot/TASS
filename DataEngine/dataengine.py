@@ -144,12 +144,14 @@ class DataEngine:
         coord1_tag = "FIELD8"
         coord2_tag = "FIELD9"
 
-
+        coords_and_names = dict()
         coord_list = []
+        names_list = [] #list of find names in PRNG base
         #iterate over names in one post
         for name in names_to_find:
         #iterate over elements returned
             coords_repated_names = []
+            name_added = False
             for elem in elements:
                 for child in elem:
 
@@ -182,10 +184,19 @@ class DataEngine:
                             coord_coverted = self._convert_geo_coordinates(
                                                                 coord1, coord2)
                             coords_repated_names.append(coord_coverted)
+                            
+                            #add name to list    
+                            if (not name_added):
+                                names_list.append(mianownik)
+                                name_added = True
 
-            # if do not find any place with given name omit this                
+            # if do not find any place with given name omit this
+            # @TODO change dict of tables to tables of dict                
             if len(coords_repated_names) > 0:
                 coord_list.append(coords_repated_names)
+                #names_list.append(name)
 
-
-        return self._find_best_coords(coord_list)
+        coords_and_names['cords'] = self._find_best_coords(coord_list)
+        coords_and_names['names'] = names_list
+        
+        return coords_and_names

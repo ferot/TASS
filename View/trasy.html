@@ -151,15 +151,24 @@
 			
 			map.data.setStyle(function(feature) {
 						var weight = parseInt(feature.getProperty('weight'));
+						var name = feature.getProperty('name');
 						
-						if (weight==null)
+						if (isNaN(weight))
 							color="white";						
-						else
-							color = getLineColor(weight, jet);	
+						else 
+							color = getLineColor(weight, jet);
+						
+
+
+						if (!isNaN(name)) {
+							
+						}
+						
 
 						return{
 						fillColor: "white", 
 						strokeWeight: 0.5 + (Math.log10(weight + 1)),
+						title: name,
 						strokeColor: color
 						};
 					});
@@ -167,7 +176,7 @@
 		}
 
 		function getLineColor(value, colormap) {
-			var colorIdx = Math.round(colormap.length * Math.log10(value+1)/3.5);
+			var colorIdx = Math.round(colormap.length * Math.log10(value+1)/1.5);
 			
 			if (colorIdx<0)
 				colorIdx=0;
