@@ -28,6 +28,9 @@ class DataEngine:
     def get_upper_case_names(self, content):
         post_words_list = []
 
+        #indicates max nr of words which should be considered as single name
+        max_words_nr = 3
+
         for post in self.split_post(content):
             words_in_post = []
             post = self.decode_content(post)
@@ -36,15 +39,21 @@ class DataEngine:
             split_words = filtered_post.split(" ")
             aggregated_name = []
             for word in split_words:
-                if len(word) > 1 and word[0].isupper():
+                if len(word) > 1 and word[0].isupper() and len(aggregated_name) <= (max_words_nr - 1):
+                    word, endof_sentence_flag = self.filter_endof_sentence(word)
                     aggregated_name.append(word)
+                    if endof_sentence_flag or len(aggregated_name) == max_words_nr:
+                        final_name = self.merge_words(aggregated_name)
+                        words_in_post.append(final_name)
+
+                        aggregated_name = []
+                        continue
                 else:
                     if aggregated_name:
-                        # merge words into final within space
-                        final_name = ' '.join(aggregated_name)
-                        words_in_post.append(unidecode.unidecode(final_name))
+                        final_name = self.merge_words(aggregated_name)
+                        words_in_post.append(final_name)
+
                         aggregated_name = []
-                        #print final_name
 
             post_words_list.append(words_in_post)
         return post_words_list
@@ -56,10 +65,28 @@ class DataEngine:
 
     """Filter post from unwanted characters"""
     def filter_post(self, post):
-        restricted_symbols = '[!@#$.,?()*:;"]'  # special symbols to be omitted
+        restricted_symbols = '[!@#$,?()*:;"]'  # special symbols to be omitted
         post = re.sub (restricted_symbols, '', post)
 
         return post
+
+    """Checks whether word contains symbol indicating end of sentence.
+    Returns cropped string to first existence of that symbol if found
+    and flag indicating if that happened"""
+    def filter_endof_sentence(self, word):
+        index = word.find(".")
+        detected = False
+        if index != -1:
+            word = word[:index]
+            detected = True
+        return word, detected
+
+    """Merges aggregated list of words into single final one.
+    Returns unidecoded name converted string"""
+    def merge_words(self, aggregate_list):
+        # merge words into final within space
+        final_name = ' '.join(aggregate_list)
+        return unidecode.unidecode(final_name)
 
     """Extracts root of PRNG reference file.
     By default it expects XML file, but GML are still compatible."""
