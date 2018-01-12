@@ -78,20 +78,19 @@ class ProcessingEngine:
             ProcessingEngine.gml_lock.release()
 
             coords_and_names = ProcessingEngine.de.build_track_list(elements, names)
-            coord_list = coords_and_names['cords']
-            names_list = coords_and_names['names']
             #print("end of one post" + str(coord_list))
 
             #do not add to graph simple place or empty list
-            if len(coord_list) < 2:
+            if len(coords_and_names) < 2:
                 continue
 
 
             ProcessingEngine.add_to_graph_lock.acquire()
             #add route to graph
-            for i in range(0, len(coord_list) - 1):
-                graph.addEdge(coord_list[i], coord_list[i + 1], names_list[i], 
-                                                            names_list[i + 1])
+            for i in range(0, len(coords_and_names) - 1):
+                graph.addEdge(coords_and_names[i][0], coords_and_names[i + 1][0],
+                               coords_and_names[i][1], coords_and_names[i + 1][1], 
+                               coords_and_names[i][2], coords_and_names[i + 1][2])
 
             ProcessingEngine.add_to_graph_lock.release()
 
