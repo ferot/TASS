@@ -75,13 +75,61 @@ class DataEngine:
         if suffix == None:
             return ''
 
-        if suffix[0] != '-':
-            return suffix
+        if ' ' in suffix:
+            p = re.compile(r' ')
+            suffs = p.split(suffix)
+            mians = p.split(mianownik)
+            tmp = []
+            
+            #print "suffs" + str(suffs)
+            
+            #print "mians" + str(mians)
+            if (len(suffs) != len(mians)):
+                return ""
+            
+            for i in range(len(suffs)):
+                if len(suffs[i]) < 2:
+                    continue
+                
+                if suffs[i][0] != '-':
+                    tmp.append(suffs[i])
+                
+                else:
+                    tmp_part = ''
+                    for j in range(len(mians[i])):
+                        if mians[i][-1 - j] == suffs[i][1]:
+                            if j == 0:
+                                tmp_part = mians[i] + suffs[i][2:]
+                            else:
+                                tmp_part = mians[i][0 : - j] + suffs[i][2:]
+                            #break
+                        
+                    if tmp_part == '':
+                        return ''
+                        
+                    tmp.append(tmp_part)
+                           
+            
+            for e in tmp:
+                dopelniacz += e + " "
+            
+            dopelniacz = dopelniacz[0:-1]
+                
 
-        for i in range(len(mianownik)):
-            if mianownik[-1 - i] == suffix[1]:
-                dopelniacz = mianownik[0 : - i] + suffix[2:]
+        else:
+            if suffix[0] != '-':
+                return suffix
+            
 
+            for i in range(len(mianownik)):
+                if mianownik[-1 - i] == suffix[1]:
+                    if i == 0:
+                        dopelniacz = mianownik + suffix[2:]
+                    else:
+                        dopelniacz = mianownik[0 : - i] + suffix[2:]
+                    #break
+
+        
         return dopelniacz
     
     """ find closest places, coord_list contain route with all
@@ -174,6 +222,7 @@ class DataEngine:
                     if (not found) and (dopelniacz_tag in child.tag):
                         if name == self._create_dopelniacz(mianownik, child.text):
                             # TODO: extend it!
+                            #print("dopelniacz:" + name)
                             found = True
                         else:
                             found = False
