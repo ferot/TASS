@@ -3,13 +3,15 @@ Application showing most popular tracks by user's opinion from two travel forums
 
 #Installation: 
 $cd utils
+
 $sudo ./prep_env.sh
 
 #Runnning:
 
 1. If full-proccess is desired (with webscraping posts from forum's) please run:
+
 $python main_app ws
-where ws is input param
+(where ws is input param)
 
 2. When main_app finishes processing:
 $python3 -m http.server
